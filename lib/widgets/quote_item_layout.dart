@@ -25,6 +25,7 @@ class _QuotesLayoutState extends State<QuotesLayout> {
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
+  
       onTap: () {
         Navigator.of(context)
             .pushNamed(QuoteDetails.routeName, arguments: widget.id);

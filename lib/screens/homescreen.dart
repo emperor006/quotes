@@ -5,6 +5,8 @@ import 'package:todo_app/widgets/quote_item_layout.dart';
 
 import '../providers/quotes.dart';
 
+enum display { Favorite, All }
+
 class HomeScreen extends StatefulWidget {
   @override
   State<HomeScreen> createState() => _HomeScreenState();
@@ -33,7 +35,25 @@ class _HomeScreenState extends State<HomeScreen> {
                 child: Column(
                   children: [
                     const SizedBox(
-                      height: 50,
+                      height: 20,
+                    ),
+                    Container(
+                      child: Row(
+                        children: [
+                          IconButton(
+                              iconSize: 40,
+                              color: Color.fromARGB(255, 169, 24, 14),
+                              onPressed: () {
+                                Navigator.of(context).pop();
+                              },
+                              icon: const Icon(
+                                Icons.cancel_outlined,
+                              ))
+                        ],
+                      ),
+                    ),
+                    const SizedBox(
+                      height: 10,
                     ),
                     const Text(
                       'Add Quote',
@@ -124,6 +144,8 @@ class _HomeScreenState extends State<HomeScreen> {
     Navigator.of(context).pop();
   }
 
+  bool isShowFavorite = false;
+
   @override
   Widget build(BuildContext context) {
     final quotesData = Provider.of<Quotes>(context);
@@ -132,7 +154,33 @@ class _HomeScreenState extends State<HomeScreen> {
       appBar: AppBar(
         title: const Text('Quotes'),
         centerTitle: true,
-        actions: [],
+        actions: [
+          PopupMenuButton(
+              onSelected: (display show) {
+                switch (show) {
+                  case display.Favorite:
+                    isShowFavorite = true;
+                    break;
+
+                  case display.All:
+                    isShowFavorite = false;
+                    break;
+                }
+              },
+              itemBuilder: (context) => [
+                    const PopupMenuItem(
+                      child: Text('Favorites'),
+                      value: display.Favorite,
+                    )
+                  ]),
+          PopupMenuButton(
+              itemBuilder: (context) => [
+                    const PopupMenuItem(
+                      child: Text('Show All'),
+                      value: display.All,
+                    )
+                  ]),
+        ],
       ),
       body: GridView.builder(
         padding: const EdgeInsets.all(10),
@@ -142,7 +190,6 @@ class _HomeScreenState extends State<HomeScreen> {
             crossAxisSpacing: 10,
             mainAxisSpacing: 10,
             childAspectRatio: 3 / 2),
-
         itemBuilder: (BuildContext context, int index) =>
             ChangeNotifierProvider.value(
           value: quotesData.myQuotes[index],
