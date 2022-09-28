@@ -142,14 +142,18 @@ class _HomeScreenState extends State<HomeScreen> {
             crossAxisSpacing: 10,
             mainAxisSpacing: 10,
             childAspectRatio: 3 / 2),
-        itemBuilder: (BuildContext context, int index) => QuotesLayout(
-          title: quotesData.myQuotes[index].title,
-          description: quotesData.myQuotes[index].description,
-          dateTime: quotesData.myQuotes[index].time,
-          isFavorite: quotesData.myQuotes[index].isFavorite,
-        )
-        // return const Text('No quote to show');
-        ,
+
+        itemBuilder: (BuildContext context, int index) =>
+            ChangeNotifierProvider.value(
+          value: quotesData.myQuotes[index],
+          child: QuotesLayout(
+            id: quotesData.myQuotes[index].id,
+            title: quotesData.myQuotes[index].title,
+            description: quotesData.myQuotes[index].description,
+            dateTime: quotesData.myQuotes[index].time,
+            isFavorite: quotesData.myQuotes[index].isFavorite,
+          ),
+        ),
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () => getBottomsheet(context),

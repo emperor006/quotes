@@ -1,6 +1,6 @@
 import 'package:flutter/cupertino.dart';
 
-class QuoteItem {
+class QuoteItem with ChangeNotifier {
   String id, description, title;
   DateTime time;
   bool isFavorite;
@@ -9,8 +9,13 @@ class QuoteItem {
       {required this.id,
       required this.title,
       required this.description,
-      this.isFavorite=false,
+      this.isFavorite = false,
       required this.time});
+
+  void toggleFavorites() {
+    isFavorite = !isFavorite;
+    notifyListeners();
+  }
 }
 
 class Quotes with ChangeNotifier {
@@ -58,7 +63,11 @@ class Quotes with ChangeNotifier {
     return _quoteList.firstWhere((element) => element.id == quoteId);
   }
 
- Future<void> addQuotes(QuoteItem item) async {
+  List<QuoteItem> get myFavorites {
+    return _quoteList.where((element) => element.isFavorite == true).toList();
+  }
+
+  Future<void> addQuotes(QuoteItem item) async {
     _quoteList.insert(0, item);
     notifyListeners();
   }
