@@ -2,13 +2,19 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:todo_app/providers/quotes.dart';
 
-class QuoteDetails extends StatelessWidget {
+class QuoteDetails extends StatefulWidget {
   //const QuoteDetails({ Key? key }) : super(key: key);
   static const routeName = 'rouetName';
 
+  @override
+  State<QuoteDetails> createState() => _QuoteDetailsState();
+}
+
+class _QuoteDetailsState extends State<QuoteDetails> {
   final titleFocusNode = FocusNode();
   final descriptionFocusNode = FocusNode();
   final _globalKey = GlobalKey<FormState>();
+  bool isLoading = false;
 
   var _quoteItem =
       QuoteItem(id: '', title: '', description: '', time: DateTime.now());
@@ -16,7 +22,9 @@ class QuoteDetails extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final quoteId = ModalRoute.of(context)!.settings.arguments as String;
-    QuoteItem _quote = Provider.of<Quotes>(context).findQuoteWithId(quoteId);
+
+    QuoteItem _quote =
+        Provider.of<Quotes>(context, listen: false).findQuoteWithId(quoteId);
 
     return Scaffold(
       appBar: AppBar(
@@ -29,40 +37,43 @@ class QuoteDetails extends StatelessWidget {
                 editQuote(_quote, context);
               },
               icon: const Icon(Icons.edit)),
-          IconButton(          
+          IconButton(
               onPressed: () {
-                // Navigator.of(context).pushNamed(routeName, arguments: _quote);
-                //Todo- show edit bottomsheet
-                deleteQuote(_quote.id);
+                deleteQuote(_quote.id, context);
               },
               icon: const Icon(Icons.delete)),
         ],
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(8.0),
-        child: Column(
-          children: [
-            const SizedBox(
-              height: 20,
-            ),
-            Text(
-              _quote.title,
-              style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 23),
-            ),
-            const SizedBox(
-              height: 20,
-            ),
-            Padding(
-              padding: const EdgeInsets.all(2.0),
-              child: Text(
-                _quote.description,
-                style:
-                    const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+      body: isLoading
+          ? const Center(
+              child: CircularProgressIndicator(),
+            )
+          : Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Column(
+                children: [
+                  const SizedBox(
+                    height: 20,
+                  ),
+                  Text(
+                    _quote.title,
+                    style: const TextStyle(
+                        fontWeight: FontWeight.bold, fontSize: 23),
+                  ),
+                  const SizedBox(
+                    height: 20,
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.all(2.0),
+                    child: Text(
+                      _quote.description,
+                      style: const TextStyle(
+                          fontWeight: FontWeight.bold, fontSize: 16),
+                    ),
+                  ),
+                ],
               ),
             ),
-          ],
-        ),
-      ),
     );
   }
 
@@ -178,7 +189,22 @@ class QuoteDetails extends StatelessWidget {
             )));
   }
 
-  void updateQuote() {}
+  void updateQuote() {
+    bool validated = _globalKey.currentState!.validate();
+    if (validated) {
+      _globalKey.currentState!.save();
 
-  void deleteQuote(String id) {}
+      //update quotelist here
+
+    }
+  }
+
+  void deleteQuote(String id, BuildContext context) async {
+    setState(() {
+      isLoading = true;
+    });
+    await Provider.of<Quotes>(context, listen: false).deleteQuote(id);
+
+    Navigator.of(context).pop();
+  }
 }

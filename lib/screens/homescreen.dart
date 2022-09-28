@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import 'package:todo_app/widgets/quote_item_layout.dart';
 
 import '../providers/quotes.dart';
+import '../widgets/grid.dart';
 
 enum display { Favorite, All }
 
@@ -150,58 +151,47 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget build(BuildContext context) {
     final quotesData = Provider.of<Quotes>(context);
 
+    List<QuoteItem> _quoteList =
+        isShowFavorite ? quotesData.myFavorites : quotesData.myQuotes;
+
     return Scaffold(
       appBar: AppBar(
         title: const Text('Quotes'),
         centerTitle: true,
         actions: [
-          PopupMenuButton(
-              onSelected: (display show) {
-                switch (show) {
-                  case display.Favorite:
-                    isShowFavorite = true;
-                    break;
+          Container(
+            margin: const EdgeInsets.only(right: 17),
+            child: PopupMenuButton(
+                onSelected: (display show) {
+                  switch (show) {
+                    case display.Favorite:
+                      setState(() {
+                        isShowFavorite = true;
+                      });
+                      break;
 
-                  case display.All:
-                    isShowFavorite = false;
-                    break;
-                }
-              },
-              itemBuilder: (context) => [
-                    const PopupMenuItem(
-                      child: Text('Favorites'),
-                      value: display.Favorite,
-                    )
-                  ]),
-          PopupMenuButton(
-              itemBuilder: (context) => [
-                    const PopupMenuItem(
-                      child: Text('Show All'),
-                      value: display.All,
-                    )
-                  ]),
+                    case display.All:
+                      setState(() {
+                        isShowFavorite = false;
+                      });
+                      break;
+                  }
+                },
+                itemBuilder: (context) => [
+                      const PopupMenuItem(
+                        child: Text('Favorites'),
+                        value: display.Favorite,
+                      ),
+                      const PopupMenuItem(
+                        child: Text('Show All'),
+                        value: display.All,
+                      )
+                    ]),
+          ),
         ],
       ),
-      body: GridView.builder(
-        padding: const EdgeInsets.all(10),
-        itemCount: quotesData.myQuotes.length,
-        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-            crossAxisCount: 2,
-            crossAxisSpacing: 10,
-            mainAxisSpacing: 10,
-            childAspectRatio: 3 / 2),
-        itemBuilder: (BuildContext context, int index) =>
-            ChangeNotifierProvider.value(
-          value: quotesData.myQuotes[index],
-          child: QuotesLayout(
-            id: quotesData.myQuotes[index].id,
-            title: quotesData.myQuotes[index].title,
-            description: quotesData.myQuotes[index].description,
-            dateTime: quotesData.myQuotes[index].time,
-            isFavorite: quotesData.myQuotes[index].isFavorite,
-          ),
-        ),
-      ),
+      body:QuotesGrid(isShowFavorite),
+      
       floatingActionButton: FloatingActionButton(
         onPressed: () => getBottomsheet(context),
         child: const Icon(

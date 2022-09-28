@@ -60,6 +60,8 @@ class Quotes with ChangeNotifier {
   List<QuoteItem> get myQuotes => [..._quoteList];
 
   QuoteItem findQuoteWithId(String quoteId) {
+  
+    
     return _quoteList.firstWhere((element) => element.id == quoteId);
   }
 
@@ -69,6 +71,12 @@ class Quotes with ChangeNotifier {
 
   Future<void> addQuotes(QuoteItem item) async {
     _quoteList.insert(0, item);
+    notifyListeners();
+  }
+
+  Future<void> deleteQuote(String quoteId) async {
+    _quoteList.removeWhere((element) => element.id == quoteId);
+
     notifyListeners();
   }
 }
