@@ -15,9 +15,9 @@ class QuoteItem with ChangeNotifier {
       this.isFavorite = false,
       required this.time});
 
-  void toggleFavorites() {
+  Future<void> toggleFavorites() async {
     isFavorite = !isFavorite;
-    updateFavoriteStatus();
+    await updateFavoriteStatus();
     notifyListeners();
   }
 
@@ -25,60 +25,20 @@ class QuoteItem with ChangeNotifier {
     var url =
         'https://quotesapp-af2d3-default-rtdb.firebaseio.com/quotes/$id.json';
 
-    await http
-        .patch(Uri.parse(url),
-            body: json.encode({
-              'title': title,
-              'description': description,
-              'time': time.toIso8601String(),
-              'isFavorite': true
-            }))
-        .then((value) => print(json.decode(value.body))
-        
-        );
+    await http.patch(Uri.parse(url),
+        body: json.encode({
+          'title': title,
+          'description': description,
+          'time': time.toIso8601String(),
+          'isFavorite': isFavorite
+        }));
 
     notifyListeners();
   }
 }
 
 class Quotes with ChangeNotifier {
-  final List<QuoteItem> _quoteList = [
-    // QuoteItem(
-    //     id: DateTime.now().toString(),
-    //     title: 'Hello Charles..',
-    //     description:
-    //         'This is a dummy descripton, so dont take it seriously... Houses less than 400 £ a month, look horrible.',
-    //     isFavorite: false,
-    //     time: DateTime.now()),
-    // QuoteItem(
-    //     id: DateTime.now().toString(),
-    //     title: 'Hello Charles..',
-    //     description:
-    //         'This is a dummy descripton, so dont take it seriously... Houses less than 400 £ a month, look horrible.',
-    //     isFavorite: false,
-    //     time: DateTime.now()),
-    // QuoteItem(
-    //     id: DateTime.now().toString(),
-    //     title: 'Hello Charles..',
-    //     description:
-    //         'This is a dummy descripton, so dont take it seriously... Houses less than 400 £ a month, look horrible.',
-    //     isFavorite: false,
-    //     time: DateTime.now()),
-    // QuoteItem(
-    //     title: 'Hello Charles..',
-    //     id: DateTime.now().toString(),
-    //     description:
-    //         'This is a dummy descripton, so dont take it seriously... Houses less than 400 £ a month, look horrible.',
-    //     isFavorite: false,
-    //     time: DateTime.now()),
-    // QuoteItem(
-    //     title: 'Hello Charles..',
-    //     id: DateTime.now().toString(),
-    //     description:
-    //         'This is a dummy descripton, so dont take it seriously... Houses less than 400 £ a month, look horrible.',
-    //     isFavorite: false,
-    //     time: DateTime.now()),
-  ];
+  final List<QuoteItem> _quoteList = [];
 
   List<QuoteItem> get myQuotes => [..._quoteList];
 
@@ -114,15 +74,34 @@ class Quotes with ChangeNotifier {
   }
 
   Future<void> deleteQuote(String quoteId) async {
-    _quoteList.removeWhere((element) => element.id == quoteId);
+    var url =
+        'https://quotesapp-af2d3-default-rtdb.firebaseio.com/quotes/$quoteId.json';
+
+    await http.delete(Uri.parse(url)).then((value) {
+      _quoteList.removeWhere((element) => element.id == quoteId);
+    });
+
     notifyListeners();
   }
 
   Future<void> updateQuote(QuoteItem quoteItem) async {
+    var url =
+        'https://quotesapp-af2d3-default-rtdb.firebaseio.com/quotes/${quoteItem.id}.json';
+
+    await http.patch(Uri.parse(url),
+        body: json.encode({
+          'title': quoteItem.title,
+          'description': quoteItem.description,
+          'time': quoteItem.time.toIso8601String(),
+          'isFavorite': quoteItem.isFavorite
+        }));
+
     int index = _quoteList.indexWhere(
       (element) => element.id == quoteItem.id,
     );
+    _quoteList.removeAt(index);
     _quoteList.insert(index, quoteItem);
+
     notifyListeners();
   }
 
