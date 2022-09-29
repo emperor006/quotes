@@ -70,6 +70,8 @@ class _QuotesLayoutState extends State<QuotesLayout> {
                       onPressed: () {
                         //todo--run update function in server to reflect like
                         value.toggleFavorites();
+
+                        
                       },
                       icon: value.isFavorite
                           ? const Icon(Icons.favorite)

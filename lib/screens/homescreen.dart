@@ -144,22 +144,24 @@ class _HomeScreenState extends State<HomeScreen> {
     } else {
       return;
     }
-    const host = 'quotesapp-af2d3-default-rtdb.firebaseio.com';
-    const path = '/quotes.json';
-   await http.post(Uri.https(host, path), body: json.encode({
-      'id':_quoteItem.id,
-      'description':_quoteItem.description,
-      'title':_quoteItem.title,
-      'isFavorite':_quoteItem.isFavorite,
-      'time':_quoteItem.time.toIso8601String(),
 
-    }));
-
-   // await Provider.of<Quotes>(context, listen: false).addQuotes(_quoteItem);
+    Provider.of<Quotes>(context, listen: false).addQuotes(_quoteItem);
     Navigator.of(context).pop();
   }
 
   bool isShowFavorite = false;
+
+  @override
+  void initState() {
+    Provider.of<Quotes>(context, listen: false).retrieveQuotesFromDatabase();
+    super.initState();
+  }
+
+  @override
+  void didChangeDependencies() {
+    // TODO: implement didChangeDependencies
+    super.didChangeDependencies();
+  }
 
   @override
   Widget build(BuildContext context) {

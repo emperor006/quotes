@@ -1,4 +1,7 @@
 import 'package:flutter/cupertino.dart';
+import 'dart:convert';
+import 'package:http/http.dart' as http;
+import 'package:intl/intl.dart';
 
 class QuoteItem with ChangeNotifier {
   String id, description, title;
@@ -14,6 +17,26 @@ class QuoteItem with ChangeNotifier {
 
   void toggleFavorites() {
     isFavorite = !isFavorite;
+    updateFavoriteStatus();
+    notifyListeners();
+  }
+
+  Future<void> updateFavoriteStatus() async {
+    var url =
+        'https://quotesapp-af2d3-default-rtdb.firebaseio.com/quotes/$id.json';
+
+    await http
+        .patch(Uri.parse(url),
+            body: json.encode({
+              'title': title,
+              'description': description,
+              'time': time.toIso8601String(),
+              'isFavorite': true
+            }))
+        .then((value) => print(json.decode(value.body))
+        
+        );
+
     notifyListeners();
   }
 }
@@ -67,17 +90,31 @@ class Quotes with ChangeNotifier {
     return _quoteList.where((element) => element.isFavorite == true).toList();
   }
 
-  Future<void> addQuotes(QuoteItem item) async {
-  
+  Future<void> addQuotes(QuoteItem _quoteItem) async {
+    const host = 'quotesapp-af2d3-default-rtdb.firebaseio.com';
+    const path = '/quotes.json';
+    final response = await http.post(Uri.https(host, path),
+        body: json.encode({
+          'description': _quoteItem.description,
+          'title': _quoteItem.title,
+          'isFavorite': _quoteItem.isFavorite,
+          'time': _quoteItem.time.toIso8601String(),
+        }));
 
+    var newQuote = QuoteItem(
+      id: json.decode(response.body)['name'],
+      description: _quoteItem.description,
+      time: _quoteItem.time,
+      title: _quoteItem.title,
+      isFavorite: _quoteItem.isFavorite,
+    );
 
-    _quoteList.insert(0, item);
+    _quoteList.insert(0, newQuote);
     notifyListeners();
   }
 
   Future<void> deleteQuote(String quoteId) async {
     _quoteList.removeWhere((element) => element.id == quoteId);
-
     notifyListeners();
   }
 
@@ -85,7 +122,25 @@ class Quotes with ChangeNotifier {
     int index = _quoteList.indexWhere(
       (element) => element.id == quoteItem.id,
     );
-    _quoteList.insert(index,quoteItem );
+    _quoteList.insert(index, quoteItem);
+    notifyListeners();
+  }
+
+  Future<void> retrieveQuotesFromDatabase() async {
+    const url =
+        'https://quotesapp-af2d3-default-rtdb.firebaseio.com/quotes.json';
+
+    final response = await http.get(Uri.parse(url));
+
+    final responseMap = json.decode(response.body) as Map<String, dynamic>;
+    responseMap.forEach((key, value) {
+      _quoteList.add(QuoteItem(
+          id: key,
+          title: value['title'],
+          description: value['description'],
+          time: DateTime.parse(value['time']), // value['time'],
+          isFavorite: value['isFavorite']));
+    });
     notifyListeners();
   }
 }
