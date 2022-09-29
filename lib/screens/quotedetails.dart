@@ -23,18 +23,23 @@ class _QuoteDetailsState extends State<QuoteDetails> {
   Widget build(BuildContext context) {
     final quoteId = ModalRoute.of(context)!.settings.arguments as String;
 
-    QuoteItem _quote =
-        Provider.of<Quotes>(context, listen: false).findQuoteWithId(quoteId);
+    QuoteItem _quote = Provider.of<Quotes>(
+      context,
+    ).findQuoteWithId(quoteId);
 
     return Scaffold(
       appBar: AppBar(
         title: const Text('Detail Screen'),
         actions: [
           IconButton(
-              onPressed: () {
-                // Navigator.of(context).pushNamed(routeName, arguments: _quote);
-                //Todo- show edit bottomsheet
-                editQuote(_quote, context);
+              onPressed: () {          
+                _quoteItem = QuoteItem(
+                    id: _quote.id,
+                    title: _quoteItem.title,
+                    description: _quoteItem.description,
+                    time: _quoteItem.time);
+
+                editQuote(_quoteItem, context);
               },
               icon: const Icon(Icons.edit)),
           IconButton(
@@ -51,14 +56,20 @@ class _QuoteDetailsState extends State<QuoteDetails> {
           : Padding(
               padding: const EdgeInsets.all(8.0),
               child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
                   const SizedBox(
                     height: 20,
                   ),
-                  Text(
-                    _quote.title,
-                    style: const TextStyle(
-                        fontWeight: FontWeight.bold, fontSize: 23),
+                  Container(
+                    width: double.infinity,
+                    alignment: Alignment.center,
+                    child: Text(                    
+                      _quote.title,
+                      style: const TextStyle(
+                        
+                          fontWeight: FontWeight.bold, fontSize: 23),
+                    ),
                   ),
                   const SizedBox(
                     height: 20,
@@ -189,13 +200,14 @@ class _QuoteDetailsState extends State<QuoteDetails> {
             )));
   }
 
-  void updateQuote() {
+  Future<void> updateQuote() async {
     bool validated = _globalKey.currentState!.validate();
     if (validated) {
       _globalKey.currentState!.save();
-
       //update quotelist here
+      await Provider.of<Quotes>(context, listen: false).updateQuote(_quoteItem);
 
+      Navigator.of(context).pop();
     }
   }
 

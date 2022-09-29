@@ -20,48 +20,46 @@ class QuoteItem with ChangeNotifier {
 
 class Quotes with ChangeNotifier {
   final List<QuoteItem> _quoteList = [
-    QuoteItem(
-        id: DateTime.now().toString(),
-        title: 'Hello Charles..',
-        description:
-            'This is a dummy descripton, so dont take it seriously... Houses less than 400 £ a month, look horrible.',
-        isFavorite: false,
-        time: DateTime.now()),
-    QuoteItem(
-        id: DateTime.now().toString(),
-        title: 'Hello Charles..',
-        description:
-            'This is a dummy descripton, so dont take it seriously... Houses less than 400 £ a month, look horrible.',
-        isFavorite: false,
-        time: DateTime.now()),
-    QuoteItem(
-        id: DateTime.now().toString(),
-        title: 'Hello Charles..',
-        description:
-            'This is a dummy descripton, so dont take it seriously... Houses less than 400 £ a month, look horrible.',
-        isFavorite: false,
-        time: DateTime.now()),
-    QuoteItem(
-        title: 'Hello Charles..',
-        id: DateTime.now().toString(),
-        description:
-            'This is a dummy descripton, so dont take it seriously... Houses less than 400 £ a month, look horrible.',
-        isFavorite: false,
-        time: DateTime.now()),
-    QuoteItem(
-        title: 'Hello Charles..',
-        id: DateTime.now().toString(),
-        description:
-            'This is a dummy descripton, so dont take it seriously... Houses less than 400 £ a month, look horrible.',
-        isFavorite: false,
-        time: DateTime.now()),
+    // QuoteItem(
+    //     id: DateTime.now().toString(),
+    //     title: 'Hello Charles..',
+    //     description:
+    //         'This is a dummy descripton, so dont take it seriously... Houses less than 400 £ a month, look horrible.',
+    //     isFavorite: false,
+    //     time: DateTime.now()),
+    // QuoteItem(
+    //     id: DateTime.now().toString(),
+    //     title: 'Hello Charles..',
+    //     description:
+    //         'This is a dummy descripton, so dont take it seriously... Houses less than 400 £ a month, look horrible.',
+    //     isFavorite: false,
+    //     time: DateTime.now()),
+    // QuoteItem(
+    //     id: DateTime.now().toString(),
+    //     title: 'Hello Charles..',
+    //     description:
+    //         'This is a dummy descripton, so dont take it seriously... Houses less than 400 £ a month, look horrible.',
+    //     isFavorite: false,
+    //     time: DateTime.now()),
+    // QuoteItem(
+    //     title: 'Hello Charles..',
+    //     id: DateTime.now().toString(),
+    //     description:
+    //         'This is a dummy descripton, so dont take it seriously... Houses less than 400 £ a month, look horrible.',
+    //     isFavorite: false,
+    //     time: DateTime.now()),
+    // QuoteItem(
+    //     title: 'Hello Charles..',
+    //     id: DateTime.now().toString(),
+    //     description:
+    //         'This is a dummy descripton, so dont take it seriously... Houses less than 400 £ a month, look horrible.',
+    //     isFavorite: false,
+    //     time: DateTime.now()),
   ];
 
   List<QuoteItem> get myQuotes => [..._quoteList];
 
   QuoteItem findQuoteWithId(String quoteId) {
-  
-    
     return _quoteList.firstWhere((element) => element.id == quoteId);
   }
 
@@ -70,6 +68,9 @@ class Quotes with ChangeNotifier {
   }
 
   Future<void> addQuotes(QuoteItem item) async {
+  
+
+
     _quoteList.insert(0, item);
     notifyListeners();
   }
@@ -77,6 +78,14 @@ class Quotes with ChangeNotifier {
   Future<void> deleteQuote(String quoteId) async {
     _quoteList.removeWhere((element) => element.id == quoteId);
 
+    notifyListeners();
+  }
+
+  Future<void> updateQuote(QuoteItem quoteItem) async {
+    int index = _quoteList.indexWhere(
+      (element) => element.id == quoteItem.id,
+    );
+    _quoteList.insert(index,quoteItem );
     notifyListeners();
   }
 }

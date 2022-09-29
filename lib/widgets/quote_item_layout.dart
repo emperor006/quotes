@@ -38,6 +38,7 @@ class _QuotesLayoutState extends State<QuotesLayout> {
           children: [
             Text(
               widget.title,
+              maxLines: 1,            
               textAlign: TextAlign.center,
               style: const TextStyle(
                   color: Colors.white,

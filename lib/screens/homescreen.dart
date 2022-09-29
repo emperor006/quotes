@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'dart:convert';
+
 import 'package:provider/provider.dart';
 import 'package:todo_app/widgets/quote_item_layout.dart';
-
+import 'package:http/http.dart' as http;
 import '../providers/quotes.dart';
 import '../widgets/grid.dart';
 
@@ -139,9 +141,21 @@ class _HomeScreenState extends State<HomeScreen> {
     final isValidated = _globalKey.currentState!.validate();
     if (isValidated) {
       _globalKey.currentState!.save();
+    } else {
+      return;
     }
+    const host = 'quotesapp-af2d3-default-rtdb.firebaseio.com';
+    const path = '/quotes.json';
+   await http.post(Uri.https(host, path), body: json.encode({
+      'id':_quoteItem.id,
+      'description':_quoteItem.description,
+      'title':_quoteItem.title,
+      'isFavorite':_quoteItem.isFavorite,
+      'time':_quoteItem.time.toIso8601String(),
 
-    await Provider.of<Quotes>(context, listen: false).addQuotes(_quoteItem);
+    }));
+
+   // await Provider.of<Quotes>(context, listen: false).addQuotes(_quoteItem);
     Navigator.of(context).pop();
   }
 
@@ -190,8 +204,7 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
         ],
       ),
-      body:QuotesGrid(isShowFavorite),
-      
+      body: QuotesGrid(isShowFavorite),
       floatingActionButton: FloatingActionButton(
         onPressed: () => getBottomsheet(context),
         child: const Icon(
